@@ -10,7 +10,8 @@ import java.util.WeakHashMap;
 
 public class MainActivity extends Activity {
 
-    private TestRunnableImpl testRunnableImpl;
+    protected TestRunnableImpl testRunnableImpl;
+
     private TextView textView;
     private Map<Runnable, Object> runnableMap = new WeakHashMap<Runnable, Object>();
 
