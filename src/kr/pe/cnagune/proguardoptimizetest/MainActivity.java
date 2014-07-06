@@ -1,21 +1,49 @@
 package kr.pe.cnagune.proguardoptimizetest;
 
 import android.app.Activity;
-import android.app.ActionBar;
-import android.app.Fragment;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
+import android.os.Handler;
+import android.widget.TextView;
+
+import java.util.Map;
+import java.util.WeakHashMap;
 
 public class MainActivity extends Activity {
+
+    private TestRunnableImpl testRunnableImpl;
+    private TextView textView;
+    private Map<Runnable, Object> runnableMap = new WeakHashMap<Runnable, Object>();
+
+    private Handler handler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+        textView = (TextView)findViewById(R.id.text);
+        testRunnableImpl = new TestRunnableImpl(this);
+
+        handler = new Handler();
+        handler.postDelayed(handlerRunner, 0);
 	}
+
+    public void registerListener(Runnable r) {
+        synchronized (runnableMap) {
+            runnableMap.put(r, null);
+        }
+    }
+
+    Runnable handlerRunner = new Runnable() {
+        @Override
+        public void run() {
+            for (Runnable r : runnableMap.keySet()) {
+                    r.run();
+            }
+            textView.setText("Listener count: " + runnableMap.size());
+            handler.postDelayed(handlerRunner, 1000);
+
+            System.gc();
+        }
+    };
 }
